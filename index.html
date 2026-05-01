@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紫微斗数 · 真太阳时精断 beta v1.5</title>
+<title>紫微斗数 · 真太阳时精断 beta v1.0</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 :root{--bg:#0f0f11;--panel:#1a1c22;--panel2:#21242c;--border:#2d3039;--text:#e0e2e8;--text2:#9a9da8;--accent:#c9a063;--radius:16px;--radius-sm:8px}
@@ -12,8 +12,13 @@ body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;backgroun
 #map-container{width:50%;min-width:0;height:100vh;position:relative;flex-shrink:0;overflow:hidden}
 #map{position:absolute;top:0;left:0;right:0;bottom:0}
 .coord-tag{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(26,28,34,0.9);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-size:.85rem;z-index:1000;display:flex;gap:12px;align-items:center;color:var(--text2);pointer-events:none}
-.splitter{width:6px;height:100vh;background:var(--panel2);cursor:col-resize;flex-shrink:0;user-select:none;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.splitter{width:6px;height:100vh;background:var(--panel2);cursor:col-resize;flex-shrink:0;user-select:none;border-left:1px solid var(--border);border-right:1px solid var(--border);position:relative;overflow:visible;z-index:11}
 .splitter:hover,.splitter.active{background:var(--accent)}
+.splitter-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:22px;height:52px;border-radius:11px;background:#3a3f4a;border:1.5px solid var(--accent);z-index:5;pointer-events:none;opacity:.55;transition:opacity .2s,background .2s,border-color .2s,box-shadow .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.splitter:hover .splitter-handle,.splitter.active .splitter-handle{opacity:1;background:var(--accent);border-color:#fff;box-shadow:0 0 14px rgba(201,160,99,0.7)}
+.splitter-handle::before{content:'';width:14px;height:2px;background:#c9a063;border-radius:1px}
+.splitter-handle::after{content:'';width:14px;height:2px;background:#c9a063;box-shadow:0 6px 0 #c9a063,0 12px 0 #c9a063;border-radius:1px}
+.splitter:hover .splitter-handle::before,.splitter.active .splitter-handle::before,.splitter:hover .splitter-handle::after,.splitter.active .splitter-handle::after{background:var(--bg);box-shadow:0 6px 0 var(--bg),0 12px 0 var(--bg)}
 #sidebar{flex:1;height:100vh;background:var(--panel);display:flex;flex-direction:column;overflow-y:auto;z-index:10;min-width:0}
 .sidebar-header{padding:20px 24px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .sidebar-header .icon{width:36px;height:36px;background:linear-gradient(135deg,#c9a063,#7b5e3b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff}
@@ -85,7 +90,7 @@ body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;backgroun
 body{flex-direction:column;overflow-y:auto}
 #map-container{width:100%!important;height:35vh!important;flex-shrink:initial}
 #sidebar{flex:none;width:100%!important;height:auto;min-height:65vh}
-#splitter{display:none}
+#splitter{display:none}.splitter-handle{display:none}
 .sidebar-header{padding:12px 16px 8px}
 .sidebar-header h2{font-size:1rem}
 .sidebar-header .icon{width:28px;height:28px;font-size:1rem}
@@ -109,9 +114,9 @@ body{flex-direction:column;overflow-y:auto}
 </head>
 <body>
 <div id="map-container"><div id="map"></div><div class="coord-tag"><span>📍</span><span id="coordText">点击地图选择出生地点</span></div></div>
-<div id="splitter" class="splitter"></div>
+<div id="splitter" class="splitter"><div class="splitter-handle"></div></div>
 <div id="sidebar">
-<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.5 · 朱雀</span></h2></div>
+<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.0 · 朱雀</span></h2></div>
 <div class="section">
 <div class="section-title">👤 基本信息</div>
 <div class="form-row">
@@ -417,10 +422,9 @@ function palaceAdvice(gong, stars, fuStars){
 }
 
 // ==================== generatePanAnalysis ====================
-function generatePanAnalysis(title, pan, fuzzyNote){
+function generatePanAnalysis(title, pan){
     let a = '<div class="r-box">';
     a += '<h4>📜 '+title+'</h4>';
-    if(fuzzyNote) a += '<p class="r-fn">'+fuzzyNote+'</p>';
     a += '<p>农历'+pan.lunar.year+'年'+pan.lunar.month+'月'+pan.lunar.day+'日 真太阳时 '+pan.shiHour+':'+pan.shiMinute.toString().padStart(2,'0')+' | 命宫: '+DIZHI[pan.mingPos]+' | 五行局: '+pan.wuXingJu+'局</p>';
     a += '<table class="r-table"><tr><th>宫位</th><th>主星</th><th>辅星</th><th>生年四化</th><th>大限</th></tr>';
     for(let i=0;i<12;i++){
@@ -561,7 +565,8 @@ window.addEventListener('message', (e) => {
         const evDesc = d.y+'年'+(d.m>0?d.m+'月':'')+(d.d>0?d.d+'日':'')+(d.h>=0?d.h+'时':'');
         const fuzzy = !d.m||!d.d||d.h<0;
         let evPanHTML = '<h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:12px">📅 '+evDesc+' 当下真太阳时盘</h2>';
-        evPanHTML += generatePanAnalysis('评估时间盘', pan, fuzzy?'部分时间未选，按模糊处理':'');
+        if(fuzzy) evPanHTML += '<p class="r-fn">(部分时间未选，按模糊处理)</p>';
+        evPanHTML += generatePanAnalysis('评估时间盘', pan);
         const liuNianHTML = '<h4>📅 流年精断（'+d.y+'年）</h4>'+generateLiuNianAnalysis(e.data.birthPan, d.y);
         if(childWindow && !childWindow.closed){
             childWindow.postMessage({ type: 'chartUpdate', evPan: evPanHTML, liuNian: liuNianHTML, evYear: d.y }, '*');
@@ -573,7 +578,6 @@ window.addEventListener('message', (e) => {
 function buildResultPage(name, birthPan, evTime, evPan, curLngVal, gender, currentAge){
     const birthYear = evTime.year - currentAge;
     const evDesc = evTime.year+'年'+(evTime.month>0?evTime.month+'月':'')+(evTime.day>0?evTime.day+'日':'')+(evTime.hour>=0?evTime.hour+'时':'');
-    const evFuzzy = !evTime.month||!evTime.day||evTime.hour<0;
     const curYr = new Date().getFullYear();
     let yOpts = ''; for(let y=curYr-30; y<=curYr+30; y++) yOpts += '<option value="'+y+'">'+y+'年</option>';
     let mOpts = '<option value="0">--</option>'; for(let m=1; m<=12; m++) mOpts += '<option value="'+m+'">'+m+'月</option>';
@@ -582,7 +586,7 @@ function buildResultPage(name, birthPan, evTime, evPan, curLngVal, gender, curre
     const initEv = JSON.stringify({y:evTime.year,m:evTime.month,d:initD,h:evTime.hour});
     const birthData = JSON.stringify({stars:birthPan.stars,fuStars:birthPan.fuStars,siHua:birthPan.siHua,palaces:birthPan.palaces});
 
-    const html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+name+' 紫微斗数命盘</title><style>'+document.querySelector('style:nth-of-type(2)').textContent+'</style></head><body class="r-body"><div class="r-header"><h1>☯ '+name+' 紫微斗数命盘</h1><button class="r-btn" onclick="window.close()">← 返回主页面</button></div><div id="birthPanSection">'+generatePanAnalysis('出生命盘', birthPan)+'</div><div class="r-hr"></div><div class="r-ctl"><label>📅 运势评估时间:</label><select id="evY">'+yOpts+'</select><span style="color:#9a9da8;font-size:.7rem">年</span><select id="evM">'+mOpts+'</select><span style="color:#9a9da8;font-size:.7rem">月</span><select id="evD"><option value="0">--</option></select><span style="color:#9a9da8;font-size:.7rem">日</span><select id="evH">'+hOpts+'</select><span style="color:#9a9da8;font-size:.7rem">时</span><button class="r-ctl btn-go" onclick="refreshEvPan()">🔄 更新运势</button></div><div id="evPanSection"><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:12px">📅 '+evDesc+' 当下真太阳时盘</h2>'+generatePanAnalysis('评估时间盘', evPan, evFuzzy?'部分时间未选，按模糊处理':'')+'</div><div class="r-hr"></div><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:8px">🔮 大限与流年精断</h2><p class="r-note">基于出生命盘推演</p><div class="r-box" id="daxianSection"><h4>📆 大限精断</h4>'+generateDaXianAnalysis(birthPan, currentAge, birthYear)+'</div><div class="r-box" id="liunianSection"><h4>📅 流年精断（'+evTime.year+'年）</h4>'+generateLiuNianAnalysis(birthPan, evTime.year)+'</div><div class="r-footer"><button class="r-btn" onclick="window.close()">← 返回主页面</button><button class="r-btn" onclick="window.print()">🖨 打印命盘</button></div><script>'
+    const html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+name+' 紫微斗数命盘</title><style>'+document.querySelector('style:nth-of-type(2)').textContent+'</style></head><body class="r-body"><div class="r-header"><h1>☯ '+name+' 紫微斗数命盘</h1><button class="r-btn" onclick="window.close()">← 返回主页面</button></div><div id="birthPanSection">'+generatePanAnalysis('出生命盘', birthPan)+'</div><div class="r-hr"></div><div class="r-ctl"><label>📅 运势评估时间:</label><select id="evY">'+yOpts+'</select><span style="color:#9a9da8;font-size:.7rem">年</span><select id="evM">'+mOpts+'</select><span style="color:#9a9da8;font-size:.7rem">月</span><select id="evD"><option value="0">--</option></select><span style="color:#9a9da8;font-size:.7rem">日</span><select id="evH">'+hOpts+'</select><span style="color:#9a9da8;font-size:.7rem">时</span><button class="r-ctl btn-go" onclick="refreshEvPan()">🔄 更新运势</button></div><div id="evPanSection"><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:12px">📅 '+evDesc+' 当下真太阳时盘</h2>'+generatePanAnalysis('评估时间盘', evPan)+'</div><div class="r-hr"></div><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:8px">🔮 大限与流年精断</h2><p class="r-note">基于出生命盘推演</p><div class="r-box" id="daxianSection"><h4>📆 大限精断</h4>'+generateDaXianAnalysis(birthPan, currentAge, birthYear)+'</div><div class="r-box" id="liunianSection"><h4>📅 流年精断（'+evTime.year+'年）</h4>'+generateLiuNianAnalysis(birthPan, evTime.year)+'</div><div class="r-footer"><button class="r-btn" onclick="window.close()">← 返回主页面</button><button class="r-btn" onclick="window.print()">🖨 打印命盘</button></div><script>'
 +'(()=>{'
 +'const PAGE={curLng:'+curLngVal+',gender:"'+gender+'",initEv:'+initEv+',birthData:'+birthData+'};'
 +'function updateDayOpts(){let y=parseInt(document.getElementById("evY").value)||new Date().getFullYear();let m=parseInt(document.getElementById("evM").value)||1;let days=new Date(y,m,0).getDate();let evD=document.getElementById("evD");let cv=evD.value;let o="<option value=\\"0\\">--</option>";for(let d=1;d<=days;d++)o+="<option value=\\""+d+"\\">"+d+"日</option>";evD.innerHTML=o;evD.value=(cv&&parseInt(cv)<=days)?cv:"0";if(PAGE.initEv.d>0&&PAGE.initEv.d<=days)evD.value=PAGE.initEv.d;}'
