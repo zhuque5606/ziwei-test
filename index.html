@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紫微斗数 · 真太阳时精断 beta v1.03</title>
+<title>紫微斗数 · 真太阳时精断 beta v1.04</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 :root{--bg:#0f0f11;--panel:#1a1c22;--panel2:#21242c;--border:#2d3039;--text:#e0e2e8;--text2:#9a9da8;--accent:#c9a063;--radius:16px;--radius-sm:8px}
@@ -118,7 +118,7 @@ body{flex-direction:column;overflow-y:auto}
 <div id="map-container"><div id="map"></div><div class="coord-tag"><span>📍</span><span id="coordText">点击地图选择出生地点</span></div></div>
 <div id="splitter" class="splitter"><div class="splitter-handle"></div></div>
 <div id="sidebar">
-<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.03 · 朱雀</span></h2></div>
+<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.04 · 朱雀</span></h2></div>
 <div class="section">
 <div class="section-title">👤 基本信息</div>
 <div class="form-row">
@@ -273,7 +273,7 @@ document.addEventListener('touchend', ()=>{ if(!dragging) return; dragging = fal
 const evYearSel = document.getElementById('evYearSelect'), evMonthSel = document.getElementById('evMonthSelect'),
       evDaySel = document.getElementById('evDaySelect'), evHourSel = document.getElementById('evHourSelect');
 const now = new Date(), curY = now.getFullYear();
-for(let y=curY-30; y<=curY+30; y++) evYearSel.appendChild(new Option(y+'年', y));
+for(let y=1900; y<=2099; y++) evYearSel.appendChild(new Option(y+'年', y));
 evYearSel.value = curY;
 for(let m=1; m<=12; m++) evMonthSel.appendChild(new Option(m+'月', m));
 for(let h=0; h<24; h++) evHourSel.appendChild(new Option(h+'时', h));
@@ -582,7 +582,7 @@ function buildResultPage(name, birthPan, evTime, evPan, curLngVal, gender, curre
     const evDesc = evTime.year+'年'+(evTime.month>0?evTime.month+'月':'')+(evTime.day>0?evTime.day+'日':'')+(evTime.hour>=0?evTime.hour+'时':'');
     const evFuzzy = !evTime.month||!evTime.day||evTime.hour<0;
     const curYr = new Date().getFullYear();
-    let yOpts = ''; for(let y=curYr-30; y<=curYr+30; y++) yOpts += '<option value="'+y+'">'+y+'年</option>';
+    let yOpts = ''; for(let y=1900; y<=2099; y++) yOpts += '<option value="'+y+'">'+y+'年</option>';
     let mOpts = '<option value="0">--</option>'; for(let m=1; m<=12; m++) mOpts += '<option value="'+m+'">'+m+'月</option>';
     let hOpts = '<option value="-1">--</option>'; for(let h=0; h<24; h++) hOpts += '<option value="'+h+'">'+h+'时</option>';
     const initD = evTime.day>0?evTime.day:0;
