@@ -55,6 +55,7 @@ body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;backgroun
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-120px);z-index:9999;background:var(--panel2);color:var(--text);padding:10px 22px;border-radius:25px;border:1px solid var(--border);transition:transform .3s;pointer-events:none;font-size:.9rem}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .mobile-resizer{display:none}
+.m-handle{display:none}
 </style>
 <style>
 /* 结果页面独立样式（内联于 buildResultPage 输出） */
@@ -92,8 +93,13 @@ body{flex-direction:column;overflow-y:auto}
 #map-container{width:100%!important;height:35vh!important;flex-shrink:initial}
 #sidebar{flex:none;width:100%!important;height:auto;min-height:65vh}
 #splitter{display:none}.splitter-handle{display:none}
-.mobile-resizer{display:flex;align-items:center;justify-content:center;height:12px;background:var(--panel2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);cursor:row-resize;user-select:none;position:relative}
-.mobile-resizer::after{content:'';width:40px;height:4px;background:#c9a063;border-radius:2px}
+.mobile-resizer{display:flex;align-items:center;justify-content:center;height:8px;background:var(--panel2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);cursor:row-resize;user-select:none;position:relative;overflow:visible;z-index:1000}
+.m-handle{display:flex;flex-direction:row;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:22px;border-radius:11px;background:#3a3f4a;border:1.5px solid var(--accent);z-index:2000;pointer-events:none;opacity:.55;gap:4px}
+.mobile-resizer:hover,.mobile-resizer.active{background:var(--accent)}
+.mobile-resizer:hover .m-handle,.mobile-resizer.active .m-handle{opacity:1;background:var(--accent);border-color:#fff;box-shadow:0 0 14px rgba(201,160,99,0.7)}
+.m-handle::before{content:'';width:2px;height:14px;background:#c9a063;border-radius:1px}
+.m-handle::after{content:'';width:2px;height:14px;background:#c9a063;box-shadow:6px 0 0 #c9a063,12px 0 0 #c9a063;border-radius:1px}
+.mobile-resizer:hover .m-handle::before,.mobile-resizer.active .m-handle::before,.mobile-resizer:hover .m-handle::after,.mobile-resizer.active .m-handle::after{background:var(--bg);box-shadow:6px 0 0 var(--bg),12px 0 0 var(--bg)}
 .sidebar-header{padding:12px 16px 8px}
 .sidebar-header h2{font-size:1rem}
 .sidebar-header .icon{width:28px;height:28px;font-size:1rem}
@@ -118,7 +124,7 @@ body{flex-direction:column;overflow-y:auto}
 <body>
 <div id="map-container"><div id="map"></div><div class="coord-tag"><span>📍</span><span id="coordText">点击地图选择出生地点</span></div></div>
 <div id="splitter" class="splitter"><div class="splitter-handle"></div></div>
-<div id="mobileResizer" class="mobile-resizer"></div>
+<div id="mobileResizer" class="mobile-resizer"><div class="m-handle"></div></div>
 <div id="sidebar">
 <div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.0 · 朱雀</span></h2></div>
 <div class="section">
@@ -273,8 +279,14 @@ document.addEventListener('touchend', ()=>{ if(!dragging) return; dragging = fal
 // 手机端竖向拖拽
 let mDragging=false,mStartY=0,mStartH=0;
 const mResizer=document.getElementById('mobileResizer');
-if(mResizer){mResizer.addEventListener('mousedown',e=>{e.preventDefault();mDragging=true;mStartY=e.clientY;mStartH=mc.getBoundingClientRect().height;mResizer.style.background='var(--accent)';});}document.addEventListener('mousemove',e=>{if(!mDragging)return;const bh=document.body.clientHeight,dy=e.clientY-mStartY;const nh=Math.max(bh*.15,Math.min(bh*.60,mStartH+dy));mc.style.height=nh+'px';});document.addEventListener('mouseup',()=>{if(!mDragging)return;mDragging=false;if(mResizer)mResizer.style.background='var(--panel2)';map.invalidateSize();});
-if(mResizer){mResizer.addEventListener('touchstart',e=>{e.preventDefault();mDragging=true;mStartY=e.touches[0].clientY;mStartH=mc.getBoundingClientRect().height;mResizer.style.background='var(--accent)';},{passive:false});}document.addEventListener('touchmove',e=>{if(!mDragging||!e.touches[0])return;const bh=document.body.clientHeight,dy=e.touches[0].clientY-mStartY;const nh=Math.max(bh*.15,Math.min(bh*.60,mStartH+dy));mc.style.height=nh+'px';},{passive:false});document.addEventListener('touchend',()=>{if(!mDragging)return;mDragging=false;if(mResizer)mResizer.style.background='var(--panel2)';map.invalidateSize();});
+if(mResizer){
+mResizer.addEventListener('mousedown',e=>{e.preventDefault();mDragging=true;mStartY=e.clientY;mStartH=mc.getBoundingClientRect().height;mResizer.classList.add('active');});
+mResizer.addEventListener('touchstart',e=>{e.preventDefault();mDragging=true;mStartY=e.touches[0].clientY;mStartH=mc.getBoundingClientRect().height;mResizer.classList.add('active');},{passive:false});
+}
+document.addEventListener('mousemove',e=>{if(!mDragging)return;const bh=document.body.clientHeight,dy=e.clientY-mStartY;const nh=Math.max(bh*.15,Math.min(bh*.60,mStartH+dy));mc.style.height=nh+'px';});
+document.addEventListener('touchmove',e=>{if(!mDragging)return;const bh=document.body.clientHeight,dy=e.touches[0].clientY-mStartY;const nh=Math.max(bh*.15,Math.min(bh*.60,mStartH+dy));mc.style.height=nh+'px';},{passive:false});
+document.addEventListener('mouseup',endMDrag);document.addEventListener('touchend',endMDrag);
+function endMDrag(){if(!mDragging)return;mDragging=false;if(mResizer)mResizer.classList.remove('active');map.invalidateSize();}
 
 // ==================== 运势评估时间选择器 ====================
 const evYearSel = document.getElementById('evYearSelect'), evMonthSel = document.getElementById('evMonthSelect'),
