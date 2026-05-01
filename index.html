@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紫微斗数 · 真太阳时精断 beta v1.0</title>
+<title>紫微斗数 · 真太阳时精断 beta v1.01</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 :root{--bg:#0f0f11;--panel:#1a1c22;--panel2:#21242c;--border:#2d3039;--text:#e0e2e8;--text2:#9a9da8;--accent:#c9a063;--radius:16px;--radius-sm:8px}
@@ -91,7 +91,7 @@ body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;backgroun
 @media(max-width:768px){
 body{flex-direction:column;overflow-y:auto}
 #map-container{width:100%!important;height:35vh!important;flex-shrink:initial}
-#sidebar{flex:none;width:100%!important;height:auto;min-height:65vh}
+#sidebar{flex:none;width:100%!important;height:auto;min-height:0;overflow-y:auto;max-height:65vh;-webkit-overflow-scrolling:touch}
 #splitter{display:none}.splitter-handle{display:none}
 .mobile-resizer{display:flex;align-items:center;justify-content:center;height:8px;background:var(--panel2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);cursor:row-resize;user-select:none;position:relative;overflow:visible;z-index:1000}
 .m-handle{display:flex;flex-direction:row;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:22px;border-radius:11px;background:#3a3f4a;border:1.5px solid var(--accent);z-index:2000;pointer-events:none;opacity:.55;gap:4px}
@@ -126,7 +126,7 @@ body{flex-direction:column;overflow-y:auto}
 <div id="splitter" class="splitter"><div class="splitter-handle"></div></div>
 <div id="mobileResizer" class="mobile-resizer"><div class="m-handle"></div></div>
 <div id="sidebar">
-<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.0 · 朱雀</span></h2></div>
+<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.01 · 朱雀</span></h2></div>
 <div class="section">
 <div class="section-title">👤 基本信息</div>
 <div class="form-row">
