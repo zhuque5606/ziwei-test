@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紫微斗数 · 真太阳时精断 beta v1.02</title>
+<title>紫微斗数 · 真太阳时精断 beta v1.03</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 :root{--bg:#0f0f11;--panel:#1a1c22;--panel2:#21242c;--border:#2d3039;--text:#e0e2e8;--text2:#9a9da8;--accent:#c9a063;--radius:16px;--radius-sm:8px}
@@ -54,9 +54,10 @@ body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;backgroun
 .result-panel{flex:1;overflow-y:auto;padding:16px 24px}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-120px);z-index:9999;background:var(--panel2);color:var(--text);padding:10px 22px;border-radius:25px;border:1px solid var(--border);transition:transform .3s;pointer-events:none;font-size:.9rem}
 .toast.show{transform:translateX(-50%) translateY(0)}
+.fullscreen-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#0f0f11;overflow-y:auto;padding:20px}
+.fullscreen-modal .r-close{position:fixed;top:10px;right:14px;z-index:10;padding:8px 18px;border-radius:20px;border:1.5px solid #2d3039;background:#21242c;color:#e0e2e8;cursor:pointer;font-size:.85rem;font-family:inherit}
 </style>
-<style>
-/* 结果页面独立样式（内联于 buildResultPage 输出） */
+<style id="resultStyles">
 .r-body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#0f0f11;color:#e0e2e8;min-height:100vh;padding:20px}
 .r-header{display:flex;align-items:center;gap:16px;padding:16px 24px;background:#1a1c22;border:1px solid #2d3039;border-radius:16px;margin-bottom:20px;flex-wrap:wrap}
 .r-header h1{font-size:1.3rem;color:#c9a063;flex:1;min-width:150px}
@@ -117,7 +118,7 @@ body{flex-direction:column;overflow-y:auto}
 <div id="map-container"><div id="map"></div><div class="coord-tag"><span>📍</span><span id="coordText">点击地图选择出生地点</span></div></div>
 <div id="splitter" class="splitter"><div class="splitter-handle"></div></div>
 <div id="sidebar">
-<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.02 · 朱雀</span></h2></div>
+<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.03 · 朱雀</span></h2></div>
 <div class="section">
 <div class="section-title">👤 基本信息</div>
 <div class="form-row">
@@ -588,7 +589,7 @@ function buildResultPage(name, birthPan, evTime, evPan, curLngVal, gender, curre
     const initEv = JSON.stringify({y:evTime.year,m:evTime.month,d:initD,h:evTime.hour});
     const birthData = JSON.stringify({stars:birthPan.stars,fuStars:birthPan.fuStars,siHua:birthPan.siHua,palaces:birthPan.palaces});
 
-    const html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+name+' 紫微斗数命盘</title><style>'+document.querySelector('style:nth-of-type(2)').textContent+'</style></head><body class="r-body"><div class="r-header"><h1>☯ '+name+' 紫微斗数命盘</h1><button class="r-btn" onclick="window.close()">← 返回主页面</button></div><div id="birthPanSection">'+generatePanAnalysis('出生命盘', birthPan)+'</div><div class="r-hr"></div><div class="r-ctl"><label>📅 运势评估时间:</label><select id="evY">'+yOpts+'</select><span style="color:#9a9da8;font-size:.7rem">年</span><select id="evM">'+mOpts+'</select><span style="color:#9a9da8;font-size:.7rem">月</span><select id="evD"><option value="0">--</option></select><span style="color:#9a9da8;font-size:.7rem">日</span><select id="evH">'+hOpts+'</select><span style="color:#9a9da8;font-size:.7rem">时</span><button class="r-ctl btn-go" onclick="refreshEvPan()">🔄 更新运势</button></div><div id="evPanSection"><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:12px">📅 '+evDesc+' 当下真太阳时盘</h2>'+generatePanAnalysis('评估时间盘', evPan, evFuzzy?'部分时间未选，按模糊处理':'')+'</div><div class="r-hr"></div><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:8px">🔮 大限与流年精断</h2><p class="r-note">基于出生命盘推演</p><div class="r-box" id="daxianSection"><h4>📆 大限精断</h4>'+generateDaXianAnalysis(birthPan, currentAge, birthYear)+'</div><div class="r-box" id="liunianSection"><h4>📅 流年精断（'+evTime.year+'年）</h4>'+generateLiuNianAnalysis(birthPan, evTime.year)+'</div><div class="r-footer"><button class="r-btn" onclick="window.close()">← 返回主页面</button><button class="r-btn" onclick="window.print()">🖨 打印命盘</button></div><script>'
+    const html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+name+' 紫微斗数命盘</title><style>'+(document.getElementById('resultStyles')||document.querySelector('style:nth-of-type(2)')).textContent+'</style></head><body class="r-body"><div class="r-header"><h1>☯ '+name+' 紫微斗数命盘</h1><button class="r-btn" onclick="window.close()">← 返回主页面</button></div><div id="birthPanSection">'+generatePanAnalysis('出生命盘', birthPan)+'</div><div class="r-hr"></div><div class="r-ctl"><label>📅 运势评估时间:</label><select id="evY">'+yOpts+'</select><span style="color:#9a9da8;font-size:.7rem">年</span><select id="evM">'+mOpts+'</select><span style="color:#9a9da8;font-size:.7rem">月</span><select id="evD"><option value="0">--</option></select><span style="color:#9a9da8;font-size:.7rem">日</span><select id="evH">'+hOpts+'</select><span style="color:#9a9da8;font-size:.7rem">时</span><button class="r-ctl btn-go" onclick="refreshEvPan()">🔄 更新运势</button></div><div id="evPanSection"><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:12px">📅 '+evDesc+' 当下真太阳时盘</h2>'+generatePanAnalysis('评估时间盘', evPan, evFuzzy?'部分时间未选，按模糊处理':'')+'</div><div class="r-hr"></div><h2 style="text-align:center;color:#c9a063;font-size:1rem;margin-bottom:8px">🔮 大限与流年精断</h2><p class="r-note">基于出生命盘推演</p><div class="r-box" id="daxianSection"><h4>📆 大限精断</h4>'+generateDaXianAnalysis(birthPan, currentAge, birthYear)+'</div><div class="r-box" id="liunianSection"><h4>📅 流年精断（'+evTime.year+'年）</h4>'+generateLiuNianAnalysis(birthPan, evTime.year)+'</div><div class="r-footer"><button class="r-btn" onclick="window.close()">← 返回主页面</button><button class="r-btn" onclick="window.print()">🖨 打印命盘</button></div><script>'
 +'(()=>{'
 +'const PAGE={curLng:'+curLngVal+',gender:"'+gender+'",initEv:'+initEv+',birthData:'+birthData+'};'
 +'function updateDayOpts(){let y=parseInt(document.getElementById("evY").value)||new Date().getFullYear();let m=parseInt(document.getElementById("evM").value)||1;let days=new Date(y,m,0).getDate();let evD=document.getElementById("evD");let cv=evD.value;let o="<option value=\\"0\\">--</option>";for(let d=1;d<=days;d++)o+="<option value=\\""+d+"\\">"+d+"日</option>";evD.innerHTML=o;evD.value=(cv&&parseInt(cv)<=days)?cv:"0";if(PAGE.initEv.d>0&&PAGE.initEv.d<=days)evD.value=PAGE.initEv.d;}'
@@ -619,11 +620,17 @@ function performAnalysis(){
         const evPan = generatePan(evY, evM||1, evD||1, evH>=0?evH:0, 0, g, curLng);
         const currentAge = evY - by;
         const resultHTML = buildResultPage(name, birthPan, {year:evY,month:evM,day:evD,hour:evH}, evPan, curLng, g, currentAge);
-        const blob = new Blob([resultHTML], {type: 'text/html;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        childWindow = window.open(url, '_blank');
-        if(!childWindow) throw new Error('弹窗被浏览器拦截，请允许弹窗后重试');
-        setTimeout(() => URL.revokeObjectURL(url), 30000);
+        try {
+            const win = window.open('about:blank', '_blank');
+            if(!win || win.closed) throw 'blocked';
+            childWindow = win; win.document.write(resultHTML); win.document.close();
+        } catch(_) {
+            const blob = new Blob([resultHTML], {type:'text/html;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            childWindow = window.open(url, '_blank');
+            if(!childWindow) throw new Error('弹窗被浏览器拦截');
+            setTimeout(() => URL.revokeObjectURL(url), 30000);
+        }
         document.getElementById('resultPanel').innerHTML = '<div style="text-align:center;color:var(--accent);padding:20px">✅ 排盘结果已在新窗口打开</div>';
         showToast('排盘完成');
     }catch(e){
