@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>紫微斗数 · 真太阳时精断 beta v1.04</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<title>紫微斗数 · 真太阳时精断 beta v1.06</title>
+<style>#map{width:100%;height:100%}</style>
 <style>
 :root{--bg:#0f0f11;--panel:#1a1c22;--panel2:#21242c;--border:#2d3039;--text:#e0e2e8;--text2:#9a9da8;--accent:#c9a063;--radius:16px;--radius-sm:8px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -118,7 +118,7 @@ body{flex-direction:column;overflow-y:auto}
 <div id="map-container"><div id="map"></div><div class="coord-tag"><span>📍</span><span id="coordText">点击地图选择出生地点</span></div></div>
 <div id="splitter" class="splitter"><div class="splitter-handle"></div></div>
 <div id="sidebar">
-<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.04 · 朱雀</span></h2></div>
+<div class="sidebar-header"><div class="icon">☯</div><h2>紫微斗数 · 真太阳时精断 <span style="font-size:.55rem;color:var(--text2);font-weight:400">beta v1.06 · 朱雀</span></h2></div>
 <div class="section">
 <div class="section-title">👤 基本信息</div>
 <div class="form-row">
@@ -172,15 +172,13 @@ body{flex-direction:column;overflow-y:auto}
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>window._AMapSecurityConfig={securityJsCode:'598e4cee85234cd5912a1f4b89496a02'}</script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=6ca35478db927f648ac50fb4fee712bc"></script>
 <script>
 (()=>{
 
-// ==================== 地图模块 ====================
-const map = L.map('map', { center: [34.3416, 108.9398], zoom: 5, zoomControl: true });
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 19 }).addTo(map);
-setTimeout(() => map.invalidateSize(), 200);
-
+// ==================== 地图模块（高德） ====================
+const map = new AMap.Map('map', { center: [108.9398, 34.3416], zoom: 5, mapStyle:'normal' });
 let birthLat = 34.3416, birthLng = 108.9398, curLat = 34.3416, curLng = 108.9398, currentTarget = 'birth', marker = null;
 const birthLatInp = document.getElementById('birthLatInput'), birthLngInp = document.getElementById('birthLngInput'),
       curLatInp = document.getElementById('curLatInput'), curLngInp = document.getElementById('curLngInput'),
@@ -203,15 +201,16 @@ btnCurrent.addEventListener('click', ()=>setTarget('birth'));
 
 function updateMarkerAndDisplay(){
     const lat = currentTarget==='birth'?birthLat:curLat, lng = currentTarget==='birth'?birthLng:curLng;
-    if(marker) map.removeLayer(marker);
-    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-    marker.on('dragend', ()=>{
-        const pos = marker.getLatLng();
-        if(currentTarget==='birth'){ birthLat=pos.lat; birthLng=pos.lng; birthLatInp.value=pos.lat.toFixed(4); birthLngInp.value=pos.lng.toFixed(4); }
-        else { curLat=pos.lat; curLng=pos.lng; curLatInp.value=pos.lat.toFixed(4); curLngInp.value=pos.lng.toFixed(4); }
+    if(marker) map.remove(marker);
+    marker = new AMap.Marker({ position: [lng, lat], draggable: true });
+    map.add(marker);
+    marker.on('dragend', (e)=>{
+        const pos = e.target.getPosition();
+        if(currentTarget==='birth'){ birthLat=pos.getLat(); birthLng=pos.getLng(); birthLatInp.value=birthLat.toFixed(4); birthLngInp.value=birthLng.toFixed(4); }
+        else { curLat=pos.getLat(); curLng=pos.getLng(); curLatInp.value=curLat.toFixed(4); curLngInp.value=curLng.toFixed(4); }
         updateTrueSolarTimes();
     });
-    map.flyTo([lat, lng], Math.max(map.getZoom(),10), {duration:.5});
+    map.setZoomAndCenter(Math.max(map.getZoom(),10), [lng, lat]);
     updateTrueSolarTimes();
 }
 
@@ -233,8 +232,9 @@ function updateTrueSolarTimes(){
     const cr = calcTrueSolarTime(dateStr, h, min, curLng); curTimeDisp.textContent = cr?cr.display:'--';
 }
 map.on('click', e=>{
-    if(currentTarget==='birth'){ birthLat=e.latlng.lat; birthLng=e.latlng.lng; birthLatInp.value=birthLat.toFixed(4); birthLngInp.value=birthLng.toFixed(4); }
-    else { curLat=e.latlng.lat; curLng=e.latlng.lng; curLatInp.value=curLat.toFixed(4); curLngInp.value=curLng.toFixed(4); }
+    const lat = e.lnglat.getLat(), lng = e.lnglat.getLng();
+    if(currentTarget==='birth'){ birthLat=lat; birthLng=lng; birthLatInp.value=lat.toFixed(4); birthLngInp.value=lng.toFixed(4); }
+    else { curLat=lat; curLng=lng; curLatInp.value=lat.toFixed(4); curLngInp.value=lng.toFixed(4); }
     updateMarkerAndDisplay();
 });
 function applyBirthInput(){
@@ -264,10 +264,10 @@ document.addEventListener('mousemove', e => {
     if(!dragging) return; const bw = document.body.clientWidth, dx = e.clientX - startX;
     const nw = Math.max(bw*0.20, Math.min(bw*0.80, startW + dx)); mc.style.width = (nw/bw*100)+'%';
 });
-document.addEventListener('mouseup', ()=>{ if(!dragging) return; dragging = false; sp.classList.remove('active'); document.body.style.userSelect = ''; document.body.style.cursor = ''; map.invalidateSize(); });
+document.addEventListener('mouseup', ()=>{ if(!dragging) return; dragging = false; sp.classList.remove('active'); document.body.style.userSelect = ''; document.body.style.cursor = ''; });
 sp.addEventListener('touchstart', e => { e.preventDefault(); dragging = true; startX = e.touches[0].clientX; startW = mc.getBoundingClientRect().width; sp.classList.add('active'); }, {passive:false});
 document.addEventListener('touchmove', e => { if(!dragging) return; const bw = document.body.clientWidth, dx = e.touches[0].clientX - startX; const nw = Math.max(bw*0.20, Math.min(bw*0.80, startW + dx)); mc.style.width = (nw/bw*100)+'%'; }, {passive:false});
-document.addEventListener('touchend', ()=>{ if(!dragging) return; dragging = false; sp.classList.remove('active'); map.invalidateSize(); });
+document.addEventListener('touchend', ()=>{ if(!dragging) return; dragging = false; sp.classList.remove('active'); });
 
 // ==================== 运势评估时间选择器 ====================
 const evYearSel = document.getElementById('evYearSelect'), evMonthSel = document.getElementById('evMonthSelect'),
@@ -644,10 +644,8 @@ document.getElementById('btnAnalyze').addEventListener('click', performAnalysis)
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'; clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // ==================== 初始化 ====================
-updateMarkerAndDisplay();
 updateTrueSolarTimes();
-window.addEventListener('resize', () => { if(window.innerWidth <= 768) setTimeout(() => map.invalidateSize(), 300); });
-window.addEventListener('orientationchange', () => { setTimeout(() => map.invalidateSize(), 500); });
+setTimeout(updateMarkerAndDisplay, 500);
 if(!storageAvailable()){
     document.getElementById('personList').innerHTML = '<span style="color:#f85149;font-size:.7rem">⚠️ 当前浏览器不支持本地存储（可能处于私密/无痕模式），数据无法保存。</span>';
 } else { renderPersonList(); }
